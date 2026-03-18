@@ -7,6 +7,7 @@ import { activateHeroAsync } from "../../../application/hero-handler/activate-he
 import { deactivateHeroAsync } from "../../../application/hero-handler/deactivate-hero";
 import { createHeroAsync } from "../../../application/hero-handler/create-hero";
 import { deleteHeroAsync } from "../../../application/hero-handler/delete-hero";
+import { toHeroResponse } from "../mappers/hero.mapper";
 
 export async function create(req: FastifyRequest, reply: FastifyReply) {
     const result = await createHeroAsync(req.body);
@@ -18,7 +19,7 @@ export async function create(req: FastifyRequest, reply: FastifyReply) {
         });
     }
 
-    return reply.status(201).send(result.data);
+    return reply.status(201).send(toHeroResponse(result.data));
 }
 
 export async function list(req: FastifyRequest, reply: FastifyReply) {
@@ -33,7 +34,9 @@ export async function list(req: FastifyRequest, reply: FastifyReply) {
         });
     }
 
-    return reply.status(200).send(result.data);
+    return reply.status(200).send(
+        result.data.map(toHeroResponse)
+    );
 }
 
 export async function getById(req: FastifyRequest, reply: FastifyReply) {
@@ -48,7 +51,7 @@ export async function getById(req: FastifyRequest, reply: FastifyReply) {
         });
     }
 
-    return reply.status(200).send(result.data);
+    return reply.status(200).send(toHeroResponse(result.data));
 }
 
 export async function update(req: FastifyRequest, reply: FastifyReply) {
@@ -63,7 +66,7 @@ export async function update(req: FastifyRequest, reply: FastifyReply) {
         });
     }
 
-    return reply.status(200).send(result.data);
+    return reply.status(200).send(toHeroResponse(result.data));
 }
 
 export async function activate(req: FastifyRequest, reply: FastifyReply) {
@@ -78,7 +81,7 @@ export async function activate(req: FastifyRequest, reply: FastifyReply) {
         });
     }
 
-    return reply.status(200).send(result.data);
+    return reply.status(200).send(toHeroResponse(result.data));
 }
 
 export async function deactivate(req: FastifyRequest, reply: FastifyReply) {
@@ -93,7 +96,7 @@ export async function deactivate(req: FastifyRequest, reply: FastifyReply) {
         });
     }
 
-    return reply.status(200).send(result.data);
+    return reply.status(200).send(toHeroResponse(result.data));
 }
 
 export async function remove(req: FastifyRequest, reply: FastifyReply) {

@@ -1,7 +1,9 @@
 import type { Hero } from "../../domain/entities/hero";
+import { HeroNotFoundError } from "../../domain/errors/hero-not-found.error";
 import { findHeroById, updateHeroById, } from "../../infrastructure/repositories/hero.repository";
 import type { Result } from "../../types/result";
-import { updateHeroSchema } from "./schemas/update-hero-schema";
+import { findOrFail } from "../../utils/find-or-fail";
+import { updateHeroSchema } from "../../types/schemas/update-hero-schema";
 import type { ZodError } from "zod";
 
 export async function updateHeroAsync(id: string, data: unknown): Promise<Result<Hero, Error | ZodError>> {
@@ -9,11 +11,10 @@ export async function updateHeroAsync(id: string, data: unknown): Promise<Result
         return { success: false, error: new Error("ID is required") };
     }
 
-    const hero = await findHeroById(id);
-
-    if (!hero) {
-        return { success: false, error: new Error("Hero not found") };
-    }
+    const hero = await findOrFail(
+        () => findHeroById(id),
+        new HeroNotFoundError()
+    );
 
     if (!hero.is_active) {
         return { success: false, error: new Error("Inactive hero cannot be edited") };

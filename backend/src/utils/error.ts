@@ -17,3 +17,9 @@ export function errorBody(error: unknown): { message: string; errors?: unknown }
     }
     return { message: String(error) };
 }
+
+export class PageMustBeInteger extends Error {
+    constructor() {
+        super("Page must be an integer");
+    }
+}
