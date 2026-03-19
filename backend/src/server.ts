@@ -5,7 +5,11 @@ import "dotenv/config";
 
 const app = Fastify();
 
-app.register(cors);
+app.register(cors, {
+    origin: true,
+    methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Accept", "Authorization"],
+});
 app.register(heroRoutes);
 
 app.setErrorHandler((error: Error, _, reply) => {
