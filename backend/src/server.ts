@@ -34,6 +34,6 @@ app.setErrorHandler((error: Error, _, reply) => {
     });
 });
 
-app.listen({ port: 3000 }).then(async () => {
+app.listen({ port: 3000, host: "0.0.0.0" }).then(async () => {
     console.log("Server running...");
 });
