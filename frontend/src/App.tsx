@@ -1,5 +1,6 @@
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
 import { HeroCard } from "./components/HeroCard";
 import { ConfirmModal } from "./components/ConfirmModal";
 import { CreateEditModal } from "./components/CreateEditModal";
@@ -28,7 +29,10 @@ function App() {
   const [formModal, setFormModal] = useState<
     { mode: "create" } | { mode: "edit"; hero: Hero } | null
   >(null);
-  const [deleteConfirmHeroId, setDeleteConfirmHeroId] = useState<string | null>(null);
+  const [confirmAction, setConfirmAction] = useState<
+    null | { action: "delete" | "activate" | "deactivate"; heroId: string }
+  >(null);
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -61,39 +65,69 @@ function App() {
     main_power: string;
     avatar_url: string;
   }) {
-    if (formModal?.mode === "edit") {
-      await updateHero(formModal.hero.id, payload);
-    } else {
-      await createHero(payload);
-    }
-    setFormModal(null);
-    await load();
-  }
-
-  function openDeleteConfirm(id: string) {
-    setMenuHeroId(null);
-    setDeleteConfirmHeroId(id);
-  }
-
-  async function handleConfirmDelete() {
-    if (!deleteConfirmHeroId) return;
+    const isEdit = formModal?.mode === "edit";
     try {
-      await deleteHero(deleteConfirmHeroId);
-      setDeleteConfirmHeroId(null);
-      if (heroes.length === 1 && page > 1) setPage((p) => p - 1);
-      else await load();
-    } catch {
-      alert("Erro ao excluir.");
-    }
-  }
-
-  async function handleToggleActive(hero: Hero) {
-    try {
-      if (hero.is_active) await deactivateHero(hero.id);
-      else await activateHero(hero.id);
+      if (formModal?.mode === "edit") {
+        await updateHero(formModal.hero.id, payload);
+      } else {
+        await createHero(payload);
+      }
+      toast.success(
+        isEdit ? "Herói atualizado com sucesso" : "Herói criado com sucesso"
+      );
       await load();
     } catch {
-      alert("Erro ao alterar status.");
+      toast.error("Erro ao salvar. Tente novamente.");
+      throw new Error("save failed");
+    }
+  }
+
+  function openConfirm(
+    action: "delete" | "activate" | "deactivate",
+    id: string
+  ) {
+    setMenuHeroId(null);
+    setConfirmAction({ action, heroId: id });
+  }
+
+  async function handleConfirm() {
+    if (!confirmAction) return;
+    const { action, heroId } = confirmAction;
+    setConfirmLoading(true);
+    try {
+      if (action === "delete") {
+        await deleteHero(heroId);
+      } else if (action === "activate") {
+        await activateHero(heroId);
+      } else {
+        await deactivateHero(heroId);
+      }
+
+      setConfirmAction(null);
+      toast.success(
+        action === "delete"
+          ? "Herói deletado"
+          : action === "activate"
+            ? "Herói ativado com sucesso"
+            : "Herói desativado com sucesso"
+      );
+
+      if (action === "delete") {
+        if (heroes.length === 1 && page > 1) setPage((p) => p - 1);
+        else await load();
+      } else {
+        await load();
+      }
+    } catch {
+      toast.error(
+        action === "delete"
+          ? "Erro ao excluir."
+          : action === "activate"
+            ? "Erro ao ativar."
+            : "Erro ao desativar."
+      );
+    } finally {
+      setConfirmLoading(false);
     }
   }
 
@@ -104,7 +138,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-[#fdf8f4] pb-24">
-      <h1 className="pt-10 pb-8 text-center text-4xl font-bold tracking-tight text-[#002b7a]">
+      <h1 className="pt-10 pb-8 text-center text-4xl font-bold tracking-tight text-black">
         Heróis
       </h1>
 
@@ -123,13 +157,13 @@ function App() {
             onChange={(e) => setSearchInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleBuscar()}
             placeholder="Digite o nome do herói"
-            className="w-full rounded-full border border-slate-200/80 bg-white py-3 pl-14 pr-5 text-[#002b7a] placeholder:text-slate-400 shadow-sm outline-none focus:border-[#002b7a]/30"
+            className="w-full rounded-full border border-slate-200/80 bg-white py-3 pl-14 pr-5 text-black placeholder:text-slate-400 shadow-sm outline-none focus:border-[#002b7a]/30"
           />
         </div>
         <button
           type="button"
           onClick={handleBuscar}
-          className="shrink-0 rounded-full border border-slate-200 bg-white px-8 py-3 font-medium text-[#002b7a] shadow-sm hover:bg-slate-50"
+          className="shrink-0 rounded-full border border-slate-200 bg-white px-8 py-3 font-medium text-black shadow-sm hover:bg-slate-50"
         >
           Buscar
         </button>
@@ -146,7 +180,7 @@ function App() {
         ) : heroes.length === 0 ? (
           <p className="py-16 text-center text-slate-500">Nenhum herói encontrado.</p>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
             {heroes.map((hero) => (
               <HeroCard
                 key={hero.id}
@@ -160,8 +194,14 @@ function App() {
                   setDetailHero(hero);
                 }}
                 onEdit={() => setFormModal({ mode: "edit", hero })}
-                onDelete={() => openDeleteConfirm(hero.id)}
-                onToggleActive={() => handleToggleActive(hero)}
+                onDelete={() => openConfirm("delete", hero.id)}
+                onActivate={() => openConfirm("activate", hero.id)}
+                onDeactivate={() => openConfirm("deactivate", hero.id)}
+                deactivateLoading={
+                  confirmLoading &&
+                  confirmAction?.action === "deactivate" &&
+                  confirmAction.heroId === hero.id
+                }
               />
             ))}
           </div>
@@ -184,11 +224,10 @@ function App() {
               key={num}
               type="button"
               onClick={() => setPage(num)}
-              className={`flex h-9 min-w-9 items-center justify-center rounded-lg px-2 text-sm font-medium ${
-                num === page
-                  ? "bg-sky-100 text-[#002b7a]"
-                  : "text-slate-500 hover:bg-white"
-              }`}
+              className={`flex h-9 min-w-9 items-center justify-center rounded-lg px-2 text-sm font-medium ${num === page
+                ? "bg-sky-100 text-black"
+                : "text-slate-500 hover:bg-white"
+                }`}
             >
               {num}
             </button>
@@ -217,15 +256,36 @@ function App() {
       )}
 
       <ConfirmModal
-        open={deleteConfirmHeroId !== null}
-        title="Excluir herói"
-        message="Tem certeza que deseja excluir este herói? Esta ação não pode ser desfeita."
-        confirmLabel="Excluir"
+        open={confirmAction !== null}
+        title={
+          confirmAction?.action === "activate"
+            ? "Ativar herói"
+            : confirmAction?.action === "deactivate"
+              ? "Desativar herói"
+              : "Excluir herói"
+        }
+        message={
+          confirmAction?.action === "activate"
+            ? "Tem certeza que deseja ativar este herói?"
+            : confirmAction?.action === "deactivate"
+              ? "Tem certeza que deseja desativar este herói?"
+              : "Tem certeza que deseja excluir este herói? Esta ação não pode ser desfeita."
+        }
+        confirmLabel={
+          confirmAction?.action === "activate"
+            ? "Ativar"
+            : confirmAction?.action === "deactivate"
+              ? "Desativar"
+              : "Excluir"
+        }
         cancelLabel="Cancelar"
-        variant="danger"
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setDeleteConfirmHeroId(null)}
+        variant={confirmAction?.action === "activate" ? "default" : "danger"}
+        loading={confirmLoading}
+        onConfirm={handleConfirm}
+        onCancel={() => setConfirmAction(null)}
       />
+
+      <Toaster position="top-right" />
     </div>
   );
 }

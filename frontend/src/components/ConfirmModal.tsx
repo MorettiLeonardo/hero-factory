@@ -7,6 +7,7 @@ type Props = {
   confirmLabel?: string;
   cancelLabel?: string;
   variant?: "danger" | "default";
+  loading?: boolean;
   onConfirm: () => void | Promise<void>;
   onCancel: () => void;
 };
@@ -18,15 +19,15 @@ export function ConfirmModal({
   confirmLabel = "Confirmar",
   cancelLabel = "Cancelar",
   variant = "default",
+  loading = false,
   onConfirm,
   onCancel,
 }: Props) {
   if (!open) return null;
 
   const isDanger = variant === "danger";
-  const confirmButtonClass = isDanger
-    ? "bg-red-600 text-white hover:bg-red-700"
-    : "bg-[#002b7a] text-white hover:bg-[#001f5c]";
+
+  const confirmText = loading ? "Processando…" : confirmLabel;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4">
@@ -37,13 +38,14 @@ export function ConfirmModal({
         aria-describedby="confirm-desc"
       >
         <div className="mb-6 flex items-start justify-between">
-          <h2 id="confirm-title" className="text-xl font-bold text-[#002b7a]">
+          <h2 id="confirm-title" className="text-xl font-bold text-black">
             {title}
           </h2>
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-full p-1 text-slate-500 hover:bg-slate-100"
+            disabled={loading}
+            className="rounded-full p-1 text-slate-500 hover:bg-slate-100 disabled:opacity-50"
             aria-label="Fechar"
           >
             <X className="h-6 w-6" />
@@ -58,16 +60,20 @@ export function ConfirmModal({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-full border border-slate-200 px-4 py-2 font-medium text-[#002b7a] hover:bg-slate-50"
+            disabled={loading}
+            className="rounded-full border border-slate-200 px-4 py-2 font-medium text-black hover:bg-slate-50 disabled:opacity-50"
           >
             {cancelLabel}
           </button>
           <button
             type="button"
+            disabled={loading}
             onClick={() => void onConfirm()}
-            className={`rounded-full px-4 py-2 font-medium ${confirmButtonClass}`}
+            className={`rounded-full px-4 py-2 font-medium ${isDanger
+              ? "bg-red-600 text-white hover:bg-red-700"
+              : "bg-[#002b7a] text-white hover:bg-[#001f5c]"} disabled:opacity-60`}
           >
-            {confirmLabel}
+            {confirmText}
           </button>
         </div>
       </div>

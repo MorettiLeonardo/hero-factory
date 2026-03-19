@@ -24,7 +24,7 @@ export function DetailModal({ hero, onClose }: Props) {
         aria-labelledby="detail-title"
       >
         <div className="mb-6 flex items-start justify-between">
-          <h2 id="detail-title" className="text-xl font-bold text-[#002b7a]">
+          <h2 id="detail-title" className="text-xl font-bold text-black">
             {hero.nickname}
           </h2>
           <button
@@ -51,19 +51,19 @@ export function DetailModal({ hero, onClose }: Props) {
 
         <div className="grid grid-cols-2 gap-6 text-sm">
           <div>
-            <p className="font-semibold text-[#002b7a]">Nome completo</p>
+            <p className="font-semibold text-black">Nome completo</p>
             <p className="mt-1 text-slate-600">{truncateText(hero.name)}</p>
           </div>
           <div>
-            <p className="font-semibold text-[#002b7a]">Data de nascimento</p>
+            <p className="font-semibold text-black">Data de nascimento</p>
             <p className="mt-1 text-slate-600">{formatDisplayDate(hero.date_of_birth)}</p>
           </div>
           <div>
-            <p className="font-semibold text-[#002b7a]">Universo</p>
+            <p className="font-semibold text-black">Universo</p>
             <p className="mt-1 text-slate-600">{truncateText(hero.universe)}</p>
           </div>
           <div>
-            <p className="font-semibold text-[#002b7a]">Habilidade</p>
+            <p className="font-semibold text-black">Habilidade</p>
             <p className="mt-1 text-slate-600">{truncateText(hero.main_power)}</p>
           </div>
         </div>
@@ -72,7 +72,7 @@ export function DetailModal({ hero, onClose }: Props) {
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-slate-200 px-10 py-3 font-medium text-[#002b7a] hover:bg-slate-50"
+            className="rounded-full border border-slate-200 px-10 py-3 font-medium text-black hover:bg-slate-50"
           >
             Fechar
           </button>

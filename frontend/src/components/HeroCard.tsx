@@ -1,4 +1,4 @@
-import { MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { MoreVertical, PencilLine, Trash } from "lucide-react";
 import type { Hero } from "../services/heroService";
 import { truncateText } from "../utils/utils";
 
@@ -9,7 +9,9 @@ type Props = {
   onOpenDetail: () => void;
   onEdit: () => void;
   onDelete: () => void;
-  onToggleActive: () => void;
+  onActivate: () => void;
+  onDeactivate: () => void;
+  deactivateLoading?: boolean;
 };
 
 export function HeroCard({
@@ -19,14 +21,17 @@ export function HeroCard({
   onOpenDetail,
   onEdit,
   onDelete,
-  onToggleActive,
+  onActivate,
+  onDeactivate,
+  deactivateLoading = false,
 }: Props) {
   return (
     <div className="relative">
       <button
         type="button"
         onClick={onOpenDetail}
-        className="w-full rounded-3xl bg-white p-6 text-center shadow-sm transition hover:shadow-md"
+        className={`w-full rounded-3xl p-6 text-center shadow-sm transition hover:shadow-md ${hero.is_active ? "bg-white" : "bg-slate-200"
+          }`}
       >
         <div className="relative mx-auto mb-4 flex h-36 w-36 items-center justify-center overflow-hidden rounded-full bg-slate-100">
           <img
@@ -39,7 +44,7 @@ export function HeroCard({
             }}
           />
         </div>
-        <p className="text-base font-semibold text-[#002b7a]">{truncateText(hero.nickname)}</p>
+        <p className="text-base font-semibold text-black">{truncateText(hero.nickname)}</p>
       </button>
 
       <div className="absolute right-2 top-2">
@@ -63,7 +68,7 @@ export function HeroCard({
               onClick={onToggleMenu}
             />
             <div
-              className="absolute right-0 top-11 z-20 flex flex-col gap-5 rounded-2xl bg-white p-4 shadow-2xl"
+              className="absolute right-0 top-11 z-20 flex flex-col items-center gap-5 rounded-2xl bg-white p-4 shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <button
@@ -72,29 +77,37 @@ export function HeroCard({
                   onDelete();
                   onToggleMenu();
                 }}
-                className="flex justify-center text-red-500 hover:opacity-80"
+                className="flex items-center gap-3 text-red-500 hover:opacity-80"
                 title="Excluir"
               >
-                <Trash2 className="h-6 w-6" strokeWidth={1.5} />
+                <Trash className="h-6 w-6" strokeWidth={1.5} />
               </button>
+
               <button
                 type="button"
                 onClick={() => {
                   onEdit();
                   onToggleMenu();
                 }}
-                className="flex justify-center text-[#002b7a] hover:opacity-80"
+                className="flex items-center gap-3 text-black hover:opacity-80"
                 title="Editar"
               >
-                <Pencil className="h-6 w-6" strokeWidth={1.5} />
+                <PencilLine className="h-6 w-6" strokeWidth={1.5} />
               </button>
+
               <button
                 type="button"
                 role="switch"
                 aria-checked={hero.is_active}
-                onClick={() => onToggleActive()}
+                disabled={deactivateLoading}
+                onClick={() => {
+                  if (hero.is_active) onDeactivate();
+                  else onActivate();
+                  onToggleMenu();
+                }}
                 className={`relative mx-auto h-7 w-12 rounded-full transition ${hero.is_active ? "bg-[#002b7a]" : "bg-slate-300"
-                  }`}
+                  } opacity-100 transition disabled:opacity-40`}
+                title={hero.is_active ? "Desativar" : "Ativar"}
               >
                 <span
                   className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition ${hero.is_active ? "left-6" : "left-0.5"
