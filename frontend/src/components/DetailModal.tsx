@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import type { Hero } from "../services/heroService";
+import { truncateText } from "../utils/utils";
 
 type Props = {
   hero: Hero | null;
@@ -51,7 +52,7 @@ export function DetailModal({ hero, onClose }: Props) {
         <div className="grid grid-cols-2 gap-6 text-sm">
           <div>
             <p className="font-semibold text-[#002b7a]">Nome completo</p>
-            <p className="mt-1 text-slate-600">{hero.name}</p>
+            <p className="mt-1 text-slate-600">{truncateText(hero.name)}</p>
           </div>
           <div>
             <p className="font-semibold text-[#002b7a]">Data de nascimento</p>
@@ -59,11 +60,11 @@ export function DetailModal({ hero, onClose }: Props) {
           </div>
           <div>
             <p className="font-semibold text-[#002b7a]">Universo</p>
-            <p className="mt-1 text-slate-600">{hero.universe}</p>
+            <p className="mt-1 text-slate-600">{truncateText(hero.universe)}</p>
           </div>
           <div>
             <p className="font-semibold text-[#002b7a]">Habilidade</p>
-            <p className="mt-1 text-slate-600">{hero.main_power}</p>
+            <p className="mt-1 text-slate-600">{truncateText(hero.main_power)}</p>
           </div>
         </div>
 

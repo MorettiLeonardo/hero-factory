@@ -1,5 +1,6 @@
 import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import type { Hero } from "../services/heroService";
+import { truncateText } from "../utils/utils";
 
 type Props = {
   hero: Hero;
@@ -38,7 +39,7 @@ export function HeroCard({
             }}
           />
         </div>
-        <p className="text-base font-semibold text-[#002b7a]">{hero.nickname}</p>
+        <p className="text-base font-semibold text-[#002b7a]">{truncateText(hero.nickname)}</p>
       </button>
 
       <div className="absolute right-2 top-2">
@@ -62,7 +63,7 @@ export function HeroCard({
               onClick={onToggleMenu}
             />
             <div
-              className="absolute right-0 top-11 z-20 flex min-w-[3.5rem] flex-col gap-5 rounded-2xl bg-white p-4 shadow-2xl"
+              className="absolute right-0 top-11 z-20 flex flex-col gap-5 rounded-2xl bg-white p-4 shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <button
@@ -92,14 +93,12 @@ export function HeroCard({
                 role="switch"
                 aria-checked={hero.is_active}
                 onClick={() => onToggleActive()}
-                className={`relative mx-auto h-7 w-12 rounded-full transition ${
-                  hero.is_active ? "bg-[#002b7a]" : "bg-slate-300"
-                }`}
+                className={`relative mx-auto h-7 w-12 rounded-full transition ${hero.is_active ? "bg-[#002b7a]" : "bg-slate-300"
+                  }`}
               >
                 <span
-                  className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition ${
-                    hero.is_active ? "left-6" : "left-0.5"
-                  }`}
+                  className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition ${hero.is_active ? "left-6" : "left-0.5"
+                    }`}
                 />
               </button>
             </div>

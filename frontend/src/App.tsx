@@ -1,6 +1,7 @@
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { HeroCard } from "./components/HeroCard";
+import { ConfirmModal } from "./components/ConfirmModal";
 import { CreateEditModal } from "./components/CreateEditModal";
 import { DetailModal } from "./components/DetailModal";
 import {
@@ -27,6 +28,7 @@ function App() {
   const [formModal, setFormModal] = useState<
     { mode: "create" } | { mode: "edit"; hero: Hero } | null
   >(null);
+  const [deleteConfirmHeroId, setDeleteConfirmHeroId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -68,10 +70,16 @@ function App() {
     await load();
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm("Excluir este herói?")) return;
+  function openDeleteConfirm(id: string) {
+    setMenuHeroId(null);
+    setDeleteConfirmHeroId(id);
+  }
+
+  async function handleConfirmDelete() {
+    if (!deleteConfirmHeroId) return;
     try {
-      await deleteHero(id);
+      await deleteHero(deleteConfirmHeroId);
+      setDeleteConfirmHeroId(null);
       if (heroes.length === 1 && page > 1) setPage((p) => p - 1);
       else await load();
     } catch {
@@ -152,7 +160,7 @@ function App() {
                   setDetailHero(hero);
                 }}
                 onEdit={() => setFormModal({ mode: "edit", hero })}
-                onDelete={() => handleDelete(hero.id)}
+                onDelete={() => openDeleteConfirm(hero.id)}
                 onToggleActive={() => handleToggleActive(hero)}
               />
             ))}
@@ -207,6 +215,17 @@ function App() {
       {detailHero && (
         <DetailModal hero={detailHero} onClose={() => setDetailHero(null)} />
       )}
+
+      <ConfirmModal
+        open={deleteConfirmHeroId !== null}
+        title="Excluir herói"
+        message="Tem certeza que deseja excluir este herói? Esta ação não pode ser desfeita."
+        confirmLabel="Excluir"
+        cancelLabel="Cancelar"
+        variant="danger"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteConfirmHeroId(null)}
+      />
     </div>
   );
 }
