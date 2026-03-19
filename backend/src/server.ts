@@ -1,9 +1,24 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
+import swagger from "@fastify/swagger";
+import swaggerUi from "@fastify/swagger-ui";
 import { heroRoutes } from "./interfaces/http/routes/hero.routes";
 import "dotenv/config";
 
 const app = Fastify();
+
+app.register(swagger, {
+    openapi: {
+        info: {
+            title: "HeroFactory API",
+            version: "1.0.0",
+        },
+    },
+});
+
+app.register(swaggerUi, {
+    routePrefix: "/docs",
+});
 
 app.register(cors, {
     origin: true,
