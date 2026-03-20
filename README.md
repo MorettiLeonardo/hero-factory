@@ -37,3 +37,13 @@ Para parar tudo:
 ```bash
 docker compose down
 ```
+
+## Parar Rodar os testes
+
+Na raíz do projeto:
+
+cd backend
+
+npm install
+
+npm run test
