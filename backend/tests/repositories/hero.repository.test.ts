@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { Hero } from "../../../src/domain/entities/hero";
+import type { Hero } from "../../src/domain/entities/hero";
 
 const mocks = vi.hoisted(() => ({
     mockCreateHero: vi.fn(),
@@ -9,7 +9,7 @@ const mocks = vi.hoisted(() => ({
     mockDeleteHeroById: vi.fn(),
 }));
 
-vi.mock("../../../src/infrastructure/database/prisma", () => ({
+vi.mock("../../src/infrastructure/database/prisma", () => ({
     prisma: {
         hero: {
             create: mocks.mockCreateHero,
@@ -27,7 +27,7 @@ import {
     findAllHeroes,
     findHeroById,
     updateHeroById,
-} from "../../../src/infrastructure/repositories/hero.repository";
+} from "../../src/infrastructure/repositories/hero.repository";
 
 function makeHero(overrides: Partial<Hero> = {}): Hero {
     const base: Hero = {
